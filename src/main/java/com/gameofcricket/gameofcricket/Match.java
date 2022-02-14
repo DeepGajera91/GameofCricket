@@ -49,7 +49,7 @@ public class Match {
     int runs = 0;
     int wickets = 0;
     int totalballs = 0;
-    int[] lastSixballs = new int[6];
+    int lastSixBallsRuns = 0;
     int index = 0;
     int strikeId = index++;
     int nonStrikeId = index++;
@@ -61,38 +61,50 @@ public class Match {
     while (wickets < 10
         && totalballs < scoreCard.getNumberOfOvers() * 6
         && (team == 0 || runs < target)) {
-      int value = ScoreGenerator(team, strikeId);
-      if (value == 7) {
-        wickets++;
-        scoreCard.getPlayerStat(team, strikeId).setPlayerOut();
-        scoreCard.getPlayerStat((1 - team), bowlerId).addWicket();
-        strikeId = index++;
-        if (strikeId <= 10)
-          scoreCard.getPlayerStat(team, strikeId).setBattingState(BattingState.NOTOUT);
-      } else {
-        runs += value;
-        scoreCard
-            .getPlayerStat(team, strikeId)
-            .addScoredRuns(value, 1, (value == 4) ? 1 : 0, (value == 6) ? 1 : 0);
-        scoreCard.getPlayerStat((1 - team), bowlerId).addRunsGiven(value, 1);
-        if (value == 1 || value == 3) {
-          int temp = nonStrikeId;
-          nonStrikeId = strikeId;
-          strikeId = temp;
+      int i = 0;
+      lastSixBallsRuns = 0;
+      for (;
+          i < 6
+              && wickets < 10
+              && totalballs < scoreCard.getNumberOfOvers() * 6
+              && (team == 0 || runs < target);
+          i++) {
+        int value = ScoreGenerator(team, strikeId);
+        if (value == 7) {
+          wickets++;
+          scoreCard.getPlayerStat(team, strikeId).setPlayerOut();
+          scoreCard.getPlayerStat((1 - team), bowlerId).addWicket();
+          strikeId = index++;
+          if (strikeId <= 10)
+            scoreCard.getPlayerStat(team, strikeId).setBattingState(BattingState.NOTOUT);
+        } else {
+          runs += value;
+          lastSixBallsRuns+=value;
+          scoreCard
+              .getPlayerStat(team, strikeId)
+              .addScoredRuns(value, 1, (value == 4) ? 1 : 0, (value == 6) ? 1 : 0);
+          scoreCard.getPlayerStat((1 - team), bowlerId).addRunsGiven(value, 1);
+          if (value == 1 || value == 3) {
+            int temp = nonStrikeId;
+            nonStrikeId = strikeId;
+            strikeId = temp;
+          }
         }
+        totalballs++;
+        scoreCard.setTotalWicket(wickets, team);
+        scoreCard.setTotalBall(totalballs, team);
+        scoreCard.setTotalScore(runs, team);
       }
-      totalballs++;
-      scoreCard.setTotalWicket(wickets, team);
-      scoreCard.setTotalBall(totalballs, team);
-      scoreCard.setTotalScore(runs, team);
-      if (totalballs % 6 == 0) {
-        out.printf("---> Score after %d over : %d/%d%n", totalballs / 6, runs, wickets);
-        bowlerId = nextBowler(bowlerId);
-        int temp = nonStrikeId;
-        nonStrikeId = strikeId;
-        strikeId = temp;
+      if(i == 6 && lastSixBallsRuns == 0){
+        scoreCard.getPlayerStat((1-team),bowlerId).addMaidenOvers();
       }
+      out.printf("---> Score after %d.%d over : %d/%d%n", totalballs / 6,totalballs%6, runs, wickets);
+      bowlerId = nextBowler(bowlerId);
+      int temp = nonStrikeId;
+      nonStrikeId = strikeId;
+      strikeId = temp;
     }
+
     out.printf(
         "---> %s Total score %d/%d , %d.%d over%n%n",
         (team == 0 ? scoreCard.getBatFirstName() : scoreCard.getBatSecondName()),

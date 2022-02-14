@@ -231,11 +231,11 @@ public class ScoreCard {
         "%nTotal Score of %s : %d/%d (%d.%d overs)%n%n",
         batSecondName,
         secondBatTotalScore,
-        secondBatTotalScore,
+        secondBatTotalWicket,
         secondBatTotalBall / 6,
         secondBatTotalBall % 6);
     if (isDraw) {
-      out.println("---> Match is Drawn%n%n");
+      out.printf("---> Match is Drawn%n%n");
     } else {
       out.printf("---> %s has won the Game%n%n", teamWon);
     }

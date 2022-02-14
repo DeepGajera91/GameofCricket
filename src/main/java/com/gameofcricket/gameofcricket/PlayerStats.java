@@ -6,7 +6,7 @@ public class PlayerStats {
   private int noOfBallsPlayed = 0;
   private int noOfFours = 0;
   private int noOfSixes = 0;
-  private int noOfOvers = 0;
+  private String noOfOvers;
   private int noOfBallsBowled = 0;
   private int noOfRunsGiven = 0;
   private int noOfWickets = 0;
@@ -33,7 +33,7 @@ public class PlayerStats {
     return noOfSixes;
   }
 
-  public int getNoOfOvers() {
+  public String getNoOfOvers() {
     return noOfOvers;
   }
 
@@ -63,9 +63,7 @@ public class PlayerStats {
   public void addRunsGiven(int runsGiven, int noOfBallsBowled) {
     this.noOfRunsGiven += runsGiven;
     this.noOfBallsBowled += noOfBallsBowled;
-    if (this.noOfBallsBowled % 6 == 0) {
-      this.noOfOvers++;
-    }
+    this.noOfOvers = this.noOfBallsBowled / 6 + "." + this.noOfBallsBowled % 6;
   }
 
   public void setPlayerOut() {
@@ -76,13 +74,11 @@ public class PlayerStats {
   public void addWicket() {
     this.noOfWickets++;
     this.noOfBallsBowled++;
-    if (this.noOfBallsBowled % 6 == 0) {
-      this.noOfOvers++;
-    }
+    this.noOfOvers = this.noOfBallsBowled / 6 + "." + this.noOfBallsBowled % 6;
   }
 
-  public void addMaidenOvers(int noOfMaidenOvers) {
-    this.noOfMaidenOvers += noOfMaidenOvers;
+  public void addMaidenOvers() {
+    this.noOfMaidenOvers++;
   }
 
   public void printBatStat() {
@@ -92,6 +88,6 @@ public class PlayerStats {
 
   public void printBowlStat() {
     System.out.printf(
-        "%d\t\t%d\t\t%d\t\t%d%n", noOfOvers, noOfMaidenOvers, noOfRunsGiven, noOfWickets);
+        "%s\t\t%d\t\t%d\t\t%d%n", noOfOvers, noOfMaidenOvers, noOfRunsGiven, noOfWickets);
   }
 }
