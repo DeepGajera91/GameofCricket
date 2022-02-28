@@ -1,15 +1,17 @@
-package com.gameofcricket.gameofcricket;
+package com.gameofcricket.gameofcricket.model;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import static java.lang.System.*;
 
+@Document
 public class ScoreCard {
 
-  private static int scoreBoardId = 0;
-
-  private final int matchId = ++scoreBoardId;
-  private final Team team1;
-  private final Team team2;
-  private final int numberOfOvers;
+  @Id private String id;
+  private Team team1;
+  private Team team2;
+  private int numberOfOvers;
 
   private int winRunMargin;
   private int winWicketMargin;
@@ -31,6 +33,8 @@ public class ScoreCard {
 
   private PlayerStats[][] playerStats =
       new PlayerStats[2][11]; // 2D array, 0 - for first batting team, 1 - for second batting team
+
+  public ScoreCard() {}
 
   public ScoreCard(Team team1, Team team2, int numberOfOvers) {
     this.team1 = team1;
@@ -66,8 +70,8 @@ public class ScoreCard {
     return secondBatTotalWicket;
   }
 
-  public int getMatchId() {
-    return matchId;
+  public String getMatchId() {
+    return id;
   }
 
   public Team getTeam1() {

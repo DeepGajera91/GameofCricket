@@ -1,7 +1,7 @@
-package com.gameofcricket.gameofcricket;
+package com.gameofcricket.gameofcricket.model;
 
 public class PlayerStats {
-  private final int id;
+  private int id;
   private int noOfRunsScored = 0;
   private int noOfBallsPlayed = 0;
   private int noOfFours = 0;
@@ -16,6 +16,8 @@ public class PlayerStats {
   public PlayerStats(int id) {
     this.id = id;
   }
+
+  public PlayerStats() {}
 
   public int getNoOfRunsScored() {
     return noOfRunsScored;

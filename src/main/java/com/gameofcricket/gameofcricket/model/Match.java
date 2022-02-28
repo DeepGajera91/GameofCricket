@@ -1,4 +1,4 @@
-package com.gameofcricket.gameofcricket;
+package com.gameofcricket.gameofcricket.model;
 
 import java.util.Random;
 
@@ -41,7 +41,19 @@ public class Match {
   private int ScoreGenerator(int team, int strikeId) {
 
     int playerRating = scoreCard.getPlayer(team, strikeId).getRating();
-    return rand.nextInt(8);
+    playerRating/=10;
+
+    int outcome = rand.nextInt(100);
+
+    if (outcome >= 0 && outcome <= 10) return 0;
+    if (outcome >= 11 && outcome <= 40) return 1;
+    if (outcome >= 41 && outcome <= 60) return 2;
+    if (outcome >= 61 && outcome <= 70) return 3;
+    if (outcome >= 71 && outcome <= 80) return 4;
+    if (outcome >= 81 && outcome <= 85) return 5;
+    if (outcome >= 86 && outcome <= 86+playerRating) return 6;
+
+    return 7;
   }
 
   private int batting(int team, int target) {
@@ -79,7 +91,7 @@ public class Match {
             scoreCard.getPlayerStat(team, strikeId).setBattingState(BattingState.NOTOUT);
         } else {
           runs += value;
-          lastSixBallsRuns+=value;
+          lastSixBallsRuns += value;
           scoreCard
               .getPlayerStat(team, strikeId)
               .addScoredRuns(value, 1, (value == 4) ? 1 : 0, (value == 6) ? 1 : 0);
@@ -95,10 +107,11 @@ public class Match {
         scoreCard.setTotalBall(totalballs, team);
         scoreCard.setTotalScore(runs, team);
       }
-      if(i == 6 && lastSixBallsRuns == 0){
-        scoreCard.getPlayerStat((1-team),bowlerId).addMaidenOvers();
+      if (i == 6 && lastSixBallsRuns == 0) {
+        scoreCard.getPlayerStat((1 - team), bowlerId).addMaidenOvers();
       }
-      out.printf("---> Score after %d.%d over : %d/%d%n", totalballs / 6,totalballs%6, runs, wickets);
+      out.printf(
+          "---> Score after %d.%d over : %d/%d%n", totalballs / 6, totalballs % 6, runs, wickets);
       bowlerId = nextBowler(bowlerId);
       int temp = nonStrikeId;
       nonStrikeId = strikeId;
@@ -116,15 +129,15 @@ public class Match {
   }
 
   public void start() {
-    int first_batting_score = 0;
-    int second_batting_score = 0;
+    int firstBattingScore = 0;
+    int secondBattingScore = 0;
     int target = 0;
 
     out.printf("%n---> %s has started batting%n", scoreCard.getBatFirstName());
 
-    first_batting_score = batting(0, 0);
+    firstBattingScore = batting(0, 0);
 
-    target = first_batting_score + 1;
+    target = firstBattingScore + 1;
 
     out.printf(
         "---> %s required to score %d runs to win the match%n",
@@ -132,11 +145,11 @@ public class Match {
 
     out.printf("%n---> %s has started batting%n", scoreCard.getBatSecondName());
 
-    second_batting_score = batting(1, target);
+    secondBattingScore = batting(1, target);
 
-    if (second_batting_score >= target) {
+    if (secondBattingScore >= target) {
       scoreCard.setTeamWon(scoreCard.getBatSecondName());
-    } else if (first_batting_score == second_batting_score) {
+    } else if (firstBattingScore == secondBattingScore) {
       scoreCard.setDraw(true);
     } else {
       scoreCard.setTeamWon(scoreCard.getBatFirstName());
