@@ -3,8 +3,6 @@ package com.gameofcricket.gameofcricket.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import static java.lang.System.*;
-
 @Document
 public class ScoreCard {
 
@@ -42,8 +40,29 @@ public class ScoreCard {
     this.numberOfOvers = numberOfOvers;
   }
 
-  public PlayerStats getPlayerStat(int team, int index) {
-    return playerStats[team][index];
+  public void setPlayerBattingState(int team, int index, BattingState battingState) {
+    playerStats[team][index].setBattingState(battingState);
+  }
+
+  public void setPlayerOut(int team, int index) {
+    playerStats[team][index].setPlayerOut();
+  }
+
+  public void addWicketToBowler(int team, int index) {
+    playerStats[team][index].addWicket();
+  }
+
+  public void addScoredRuns(
+      int team, int index, int runsScored, int ballsPlayed, int noOfFours, int noOfSixes) {
+    playerStats[team][index].addScoredRuns(runsScored, ballsPlayed, noOfFours, noOfSixes);
+  }
+
+  public void addRunsGiven(int team, int index, int runsGiven, int noOfBallsBowled) {
+    playerStats[team][index].addRunsGiven(runsGiven, noOfBallsBowled);
+  }
+
+  public void addMaidenOvers(int team, int index) {
+    playerStats[team][index].addMaidenOvers();
   }
 
   public int getFirstBatTotalScore() {
@@ -78,15 +97,23 @@ public class ScoreCard {
     return team1;
   }
 
+  public String getTeam1Name() {
+    return team1.getTeamname();
+  }
+
   public Team getTeam2() {
     return team2;
   }
 
-  public Player getPlayer(int team, int strikeId) {
+  public String getTeam2Name() {
+    return team2.getTeamname();
+  }
+
+  public int getPlayerRating(int team, int strikeId) {
     if (team == 0) {
-      return firstBatTeam.getPlayers()[strikeId];
+      return firstBatTeam.getPlayers()[strikeId].getRating();
     } else {
-      return secondBatTeam.getPlayers()[strikeId];
+      return secondBatTeam.getPlayers()[strikeId].getRating();
     }
   }
 
@@ -188,60 +215,6 @@ public class ScoreCard {
       this.firstBatTotalWicket = totalWicket;
     } else {
       this.secondBatTotalWicket = totalWicket;
-    }
-  }
-
-  public void printScoreCard() {
-    out.printf("%nScorecard for %s VS %s Match%n", batFirstName, batSecondName);
-    out.printf("%nToss Result : %s Choose to bat%n", batFirstName);
-
-    out.printf("%nBatting Scorecard for %s%n%n", batFirstName);
-    out.printf("Name\t\tR\t\tB\t\t4s\t\t6s%n");
-    for (int i = 0; i < 11; i++) {
-      if (playerStats[0][i].getBattingState() == BattingState.YETTOBAT) break;
-      out.printf("%s\t\t", firstBatTeam.getPlayers()[i].getPlayerName());
-      playerStats[0][i].printBatStat();
-    }
-
-    out.printf("%nBowling Scorecard for %s%n%n", batFirstName);
-    out.printf("Name\t\tO\t\tM\t\tR\t\tW%n");
-    for (int i = 6; i < 11; i++) {
-      out.printf("%s\t\t", secondBatTeam.getPlayers()[i].getPlayerName());
-      playerStats[1][i].printBowlStat();
-    }
-    out.printf(
-        "%nTotal Score of %s : %d/%d (%d.%d overs)%n",
-        batFirstName,
-        firstBatTotalScore,
-        firstBatTotalWicket,
-        firstBatTotalBall / 6,
-        firstBatTotalBall % 6);
-
-    out.printf("%nBatting Scorecard for %s%n%n", batSecondName);
-    out.printf("Name\t\tR\t\tB\t\t4s\t\t6s%n");
-    for (int i = 0; i < 11; i++) {
-      if (playerStats[1][i].getBattingState() == BattingState.YETTOBAT) break;
-      out.printf("%s\t\t", secondBatTeam.getPlayers()[i].getPlayerName());
-      playerStats[1][i].printBatStat();
-    }
-
-    out.printf("%nBowling Scorecard for %s%n%n", batSecondName);
-    out.printf("Name\t\tO\t\tM\t\tR\t\tW%n");
-    for (int i = 6; i < 11; i++) {
-      out.printf("%s\t\t", firstBatTeam.getPlayers()[i].getPlayerName());
-      playerStats[0][i].printBowlStat();
-    }
-    out.printf(
-        "%nTotal Score of %s : %d/%d (%d.%d overs)%n%n",
-        batSecondName,
-        secondBatTotalScore,
-        secondBatTotalWicket,
-        secondBatTotalBall / 6,
-        secondBatTotalBall % 6);
-    if (isDraw) {
-      out.printf("---> Match is Drawn%n%n");
-    } else {
-      out.printf("---> %s has won the Game%n%n", teamWon);
     }
   }
 }

@@ -13,11 +13,11 @@ public class Team {
 
     for (int i = 0; i < 6; i++) {
       players[i] = new Player(teamName + i, i, PlayerType.BATSMAN, ratting);
-      ratting-=5;
+      ratting -= 5;
     }
     for (int i = 6; i < 11; i++) {
       players[i] = new Player(teamName + i, i, PlayerType.BOWLER, ratting);
-      ratting-=7;
+      ratting -= 7;
     }
   }
 

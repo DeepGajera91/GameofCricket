@@ -1,15 +1,26 @@
-package com.gameofcricket.gameofcricket.model;
+package com.gameofcricket.gameofcricket.services;
+
+import com.gameofcricket.gameofcricket.model.BattingState;
+import com.gameofcricket.gameofcricket.model.ScoreCard;
+import com.gameofcricket.gameofcricket.model.Team;
+
+import java.util.concurrent.TimeUnit;
 
 import java.util.Random;
 
 import static java.lang.System.*;
 
-public class Match {
+public class MatchService {
   private static final Random rand = new Random();
   private final ScoreCard scoreCard;
 
-  public Match(Team team1, Team team2, int numberOfOvers) {
+  private ScoreCardService scoreCardService;
+
+  public MatchService(
+      Team team1, Team team2, int numberOfOvers, ScoreCardService scoreCardService) {
     this.scoreCard = new ScoreCard(team1, team2, numberOfOvers);
+    this.scoreCardService = scoreCardService;
+    this.scoreCardService.save(this.scoreCard);
   }
 
   public ScoreCard getScoreCard() {
@@ -19,14 +30,13 @@ public class Match {
   public void toss() {
     out.printf(
         "---> %d Over Match is Starting between %s and %s%n%n",
-        scoreCard.getNumberOfOvers(),
-        scoreCard.getTeam1().getTeamname(),
-        scoreCard.getTeam2().getTeamname());
+        scoreCard.getNumberOfOvers(), scoreCard.getTeam1Name(), scoreCard.getTeam2Name());
     out.println("---> Toss time");
     // 0 - team1 will bat first
     // 1 - team2 will bat first
 
     scoreCard.setTossWon(rand.nextInt(2));
+    scoreCardService.save(this.scoreCard);
     out.printf("---> %s has won the toss and decided to bat first%n", scoreCard.getBatFirstName());
   }
 
@@ -40,23 +50,23 @@ public class Match {
 
   private int ScoreGenerator(int team, int strikeId) {
 
-    int playerRating = scoreCard.getPlayer(team, strikeId).getRating();
-    playerRating/=10;
+    int playerRating = scoreCard.getPlayerRating(team, strikeId);
+    playerRating /= 10;
 
     int outcome = rand.nextInt(100);
 
-    if (outcome >= 0 && outcome <= 10) return 0;
-    if (outcome >= 11 && outcome <= 40) return 1;
-    if (outcome >= 41 && outcome <= 60) return 2;
-    if (outcome >= 61 && outcome <= 70) return 3;
-    if (outcome >= 71 && outcome <= 80) return 4;
-    if (outcome >= 81 && outcome <= 85) return 5;
-    if (outcome >= 86 && outcome <= 86+playerRating) return 6;
+    if (outcome <= 10) return 0;
+    if (outcome <= 40) return 1;
+    if (outcome <= 60) return 2;
+    if (outcome <= 70) return 3;
+    if (outcome <= 80) return 4;
+    if (outcome <= 85) return 5;
+    if (outcome <= 86 + playerRating) return 6;
 
     return 7;
   }
 
-  private int batting(int team, int target) {
+  private int batting(int team, int target) throws InterruptedException {
 
     int runs = 0;
     int wickets = 0;
@@ -67,8 +77,10 @@ public class Match {
     int nonStrikeId = index++;
     int bowlerId = 6;
 
-    scoreCard.getPlayerStat(team, strikeId).setBattingState(BattingState.NOTOUT);
-    scoreCard.getPlayerStat(team, nonStrikeId).setBattingState(BattingState.NOTOUT);
+    scoreCard.setPlayerBattingState(team, strikeId, BattingState.NOTOUT);
+    scoreCard.setPlayerBattingState(team, nonStrikeId, BattingState.NOTOUT);
+
+    scoreCardService.save(this.scoreCard);
 
     while (wickets < 10
         && totalballs < scoreCard.getNumberOfOvers() * 6
@@ -84,18 +96,16 @@ public class Match {
         int value = ScoreGenerator(team, strikeId);
         if (value == 7) {
           wickets++;
-          scoreCard.getPlayerStat(team, strikeId).setPlayerOut();
-          scoreCard.getPlayerStat((1 - team), bowlerId).addWicket();
+          scoreCard.setPlayerOut(team, strikeId);
+          scoreCard.addWicketToBowler((1 - team), bowlerId);
           strikeId = index++;
-          if (strikeId <= 10)
-            scoreCard.getPlayerStat(team, strikeId).setBattingState(BattingState.NOTOUT);
+          if (strikeId <= 10) scoreCard.setPlayerBattingState(team, strikeId, BattingState.NOTOUT);
         } else {
           runs += value;
           lastSixBallsRuns += value;
-          scoreCard
-              .getPlayerStat(team, strikeId)
-              .addScoredRuns(value, 1, (value == 4) ? 1 : 0, (value == 6) ? 1 : 0);
-          scoreCard.getPlayerStat((1 - team), bowlerId).addRunsGiven(value, 1);
+          scoreCard.addScoredRuns(
+              team, strikeId, value, 1, (value == 4) ? 1 : 0, (value == 6) ? 1 : 0);
+          scoreCard.addRunsGiven((1 - team), bowlerId, value, 1);
           if (value == 1 || value == 3) {
             int temp = nonStrikeId;
             nonStrikeId = strikeId;
@@ -106,9 +116,12 @@ public class Match {
         scoreCard.setTotalWicket(wickets, team);
         scoreCard.setTotalBall(totalballs, team);
         scoreCard.setTotalScore(runs, team);
+        scoreCardService.save(this.scoreCard);
+        TimeUnit.SECONDS.sleep(1);
       }
       if (i == 6 && lastSixBallsRuns == 0) {
-        scoreCard.getPlayerStat((1 - team), bowlerId).addMaidenOvers();
+        scoreCard.addMaidenOvers((1 - team), bowlerId);
+        scoreCardService.save(this.scoreCard);
       }
       out.printf(
           "---> Score after %d.%d over : %d/%d%n", totalballs / 6, totalballs % 6, runs, wickets);
@@ -128,7 +141,7 @@ public class Match {
     return runs;
   }
 
-  public void start() {
+  public void start() throws InterruptedException {
     int firstBattingScore = 0;
     int secondBattingScore = 0;
     int target = 0;
@@ -154,6 +167,7 @@ public class Match {
     } else {
       scoreCard.setTeamWon(scoreCard.getBatFirstName());
     }
+    scoreCardService.save(this.scoreCard);
   }
 
   public void result() {

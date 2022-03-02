@@ -11,4 +11,6 @@ public interface ScoreCardService {
   Optional<ScoreCard> findById(String id);
 
   ScoreCard save(ScoreCard scoreCard);
+
+  List<?> findPlayerStatsById(String id);
 }

@@ -27,4 +27,9 @@ public class ScoreCardServiceImpl implements ScoreCardService {
   public ScoreCard save(ScoreCard scoreCard) {
     return scoreCardRepository.save(scoreCard);
   }
+
+  @Override
+  public List<?> findPlayerStatsById(String id){
+    return scoreCardRepository.findPlayerStatsById(id);
+  }
 }
