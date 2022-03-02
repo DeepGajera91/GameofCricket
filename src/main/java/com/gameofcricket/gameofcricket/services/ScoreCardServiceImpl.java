@@ -1,5 +1,6 @@
 package com.gameofcricket.gameofcricket.services;
 
+import com.gameofcricket.gameofcricket.model.MatchState;
 import com.gameofcricket.gameofcricket.model.ScoreCard;
 import com.gameofcricket.gameofcricket.repositories.ScoreCardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,5 +32,10 @@ public class ScoreCardServiceImpl implements ScoreCardService {
   @Override
   public List<?> findPlayerStatsById(String id){
     return scoreCardRepository.findPlayerStatsById(id);
+  }
+
+  @Override
+  public List<?> getAllLiveMatches(){
+    return scoreCardRepository.getAllLiveMatches();
   }
 }

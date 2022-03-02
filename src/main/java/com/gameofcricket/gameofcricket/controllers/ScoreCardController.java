@@ -26,6 +26,11 @@ public class ScoreCardController {
     return this.scoreCardService.findPlayerStatsById(id);
   }
 
+  @GetMapping("/live")
+  public List<?> getLiveMatches(){
+    return this.scoreCardService.getAllLiveMatches();
+  }
+
   @GetMapping("/{id}")
   public ScoreCard getScoreCardById(@PathVariable String id) {
     Optional<ScoreCard> sc = this.scoreCardService.findById(id);

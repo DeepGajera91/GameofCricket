@@ -28,6 +28,7 @@ public class ScoreCard {
   private int secondBatTotalScore = 0;
   private int secondBatTotalBall = 0;
   private int secondBatTotalWicket = 0;
+  private MatchState matchStatus = MatchState.LIVE;
 
   private PlayerStats[][] playerStats =
       new PlayerStats[2][11]; // 2D array, 0 - for first batting team, 1 - for second batting team
@@ -151,6 +152,14 @@ public class ScoreCard {
 
   public boolean isDraw() {
     return isDraw;
+  }
+
+  public MatchState getMatchStatus() {
+    return matchStatus;
+  }
+
+  public void setMatchStatus(MatchState matchStatus) {
+    this.matchStatus = matchStatus;
   }
 
   public void setResult(String result) {

@@ -1,5 +1,6 @@
 package com.gameofcricket.gameofcricket.services;
 
+import com.gameofcricket.gameofcricket.model.MatchState;
 import com.gameofcricket.gameofcricket.model.ScoreCard;
 
 import java.util.List;
@@ -13,4 +14,6 @@ public interface ScoreCardService {
   ScoreCard save(ScoreCard scoreCard);
 
   List<?> findPlayerStatsById(String id);
+
+  List<?> getAllLiveMatches();
 }

@@ -1,6 +1,7 @@
 package com.gameofcricket.gameofcricket.services;
 
 import com.gameofcricket.gameofcricket.model.BattingState;
+import com.gameofcricket.gameofcricket.model.MatchState;
 import com.gameofcricket.gameofcricket.model.ScoreCard;
 import com.gameofcricket.gameofcricket.model.Team;
 
@@ -167,6 +168,7 @@ public class MatchService {
     } else {
       scoreCard.setTeamWon(scoreCard.getBatFirstName());
     }
+    scoreCard.setMatchStatus(MatchState.FINISH);
     scoreCardService.save(this.scoreCard);
   }
 
